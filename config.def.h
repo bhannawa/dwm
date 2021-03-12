@@ -8,8 +8,8 @@ static const unsigned int minwsz    = 20;       /* Minimal heigt of a client for
 static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int focusonwheel       = 0;
-static const char *fonts[]          = { "mono:size=10", "JoyPixels:pixelsize=10" };
-static const char dmenufont[]       = "mono:size=10" ;
+static const char *fonts[]          = { "hack:size=10", "JoyPixels:pixelsize=10" };
+static const char dmenufont[]       = "hack:size=10" ;
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -30,14 +30,15 @@ static const Rule rules[] = {
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class      	instance    	title       			tags mask     	isfloating   isfreesize		moniitor    float x,y,w,h         floatborderpx */
-	{ "Zoom",     	NULL,       	"Polls",    			0,		1,           1,			-1 ,        50,50,500,500,        5 },           
-	{ "Zoom",     	NULL,       	"Chat",     			0,		1,           1,       		-1 ,        50,50,500,500,        5 },           
+	/* class      	instance            title       			tags mask     	isfloating   isfreesize		moniitor    float x,y,w,h         floatborderpx */
+	{ "Zoom",     	NULL,               "Polls",    			0,		1,           1,			-1 ,        50,50,500,500,        5 },           
+	{ "Zoom",     	NULL,               "Chat",     			0,		1,           1,       		-1 ,        50,50,500,500,        5 },           
 	/* { "Gimp",     	NULL,       	NULL,       			0,		1,           1,			-1 }, */
-	{ "firefox",  	NULL,       	NULL,       			0,		0,           0,			-1 ,        50,50,500,500,        5 },           
-	{ "st",       	NULL,       	NULL,       			0,		0,           0,			-1 ,        50,50,500,500,        5 },           
-	{ "St",       	NULL,       	NULL,       			0,		0,           0,			-1 ,        50,50,500,500,        5 },  /* St with Xresources patch */
-	{ "Thunar",     NULL,       	NULL,       			0,		1,           0,			-1 ,        50,50,1200,600,        5 },           
+	{ "firefox",  	NULL,               NULL,       			0,		0,           0,			-1 ,        50,50,500,500,        5 },           
+	{ "st",       	NULL,               NULL,       			0,		0,           0,			-1 ,        50,50,500,500,        5 },           
+	{ "St",       	NULL,               NULL,       			0,		0,           0,			-1 ,        50,50,500,500,        5 },  /* St with Xresources patch */
+	{ "Zathura",    "org.pwmt.zathura", NULL,       			0,		0,           0,			-1 ,        50,50,500,500,        5 },  /* St with Xresources patch */
+	{ "Thunar",     NULL,       	    NULL,       			0,		1,           0,			-1 ,        50,50,1200,600,        5 },           
 };
 
 /* layout(s) */
