@@ -169,6 +169,7 @@ static void configurenotify(XEvent *e);
 static void configurerequest(XEvent *e);
 static void copyvalidchars(char *text, char *rawtext);
 static Monitor *createmon(void);
+static void deck(Monitor *m);
 static void destroynotify(XEvent *e);
 static void detach(Client *c);
 static void detachstack(Client *c);
@@ -182,6 +183,7 @@ static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
 static int getdwmblockspid();
+static int getoverflowpid();
 static Atom getatomprop(Client *c, Atom prop);
 static int getrootptr(int *x, int *y);
 static long getstate(Window w);
@@ -226,6 +228,7 @@ static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
 static void sigchld(int unused);
 static void sigdwmblocks(const Arg *arg);
+static void sigoverflow(const Arg *arg);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
@@ -264,6 +267,8 @@ static char stext[256];
 static char rawstext[256];
 static int dwmblockssig;
 pid_t dwmblockspid = 0;
+static int overflowsig;
+pid_t overflowpid = 0;
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
@@ -498,6 +503,19 @@ buttonpress(XEvent *e)
 					dwmblockssig = ch;
 				}
 			}
+			overflowsig = 0;
+			while (text[++i]) {
+				if ((unsigned char)text[i] < ' ') {
+					ch = text[i];
+					text[i] = '\0';
+					x += TEXTW(text) - lrpad;
+					text[i] = ch;
+					text += i+1;
+					i = -1;
+					if (x >= ev->x) break;
+					overflowsig = ch;
+				}
+			}
 		} else
 			click = ClkWinTitle;
 	} else if ((c = wintoclient(ev->window))) {
@@ -724,6 +742,38 @@ destroynotify(XEvent *e)
 
 	if ((c = wintoclient(ev->window)))
 		unmanage(c, 1);
+}
+
+void
+deck(Monitor *m) {
+	unsigned int i, n, h, mw, my, ns;
+	float mfacts = 0;
+	Client *c;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+		if (n < m->nmaster)
+			mfacts += c->cfact;
+	}
+	if(n == 0)
+		return;
+
+	if(n > m->nmaster) {
+		mw = m->nmaster ? m->ww * m->mfact : 0;
+		ns = m->nmaster > 0 ? 2 : 1;
+		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%d]", n - m->nmaster);
+	} else {
+		mw = m->ww;
+		ns = 1;
+	}
+	for(i = 0, my = gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		if(i < m->nmaster) {
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - gappx;
+			resize(c, m->wx + gappx, m->wy + my, mw - (2*c->bw) - gappx*(5-ns)/2, h - (2*c->bw), False);
+			my += HEIGHT(c) + gappx;
+			mfacts -= c->cfact;
+		}
+		else
+			resize(c, m->wx + mw + gappx/ns, m->wy + gappx, m->ww - mw - (2*c->bw) - gappx*(5-ns)/2, m->wh - (2*c->bw) - 2*gappx, False);
 }
 
 void
@@ -958,6 +1008,18 @@ getdwmblockspid()
 	pid_t pid = strtoul(buf, NULL, 10);
 	pclose(fp);
 	dwmblockspid = pid;
+	return pid != 0 ? 0 : -1;
+}
+
+int
+getoverflowpid()
+{
+	char buf[16];
+	FILE *fp = popen("pidof -s overflow", "r");
+	fgets(buf, sizeof(buf), fp);
+	pid_t pid = strtoul(buf, NULL, 10);
+	pclose(fp);
+	overflowpid = pid;
 	return pid != 0 ? 0 : -1;
 }
 
@@ -1754,6 +1816,23 @@ sigdwmblocks(const Arg *arg)
 		if (errno == ESRCH) {
 			if (!getdwmblockspid())
 				sigqueue(dwmblockspid, SIGUSR1, sv);
+		}
+	}
+}
+
+void
+sigoverflow(const Arg *arg)
+{
+	union sigval sv;
+	sv.sival_int = (overflowsig << 8) | arg->i;
+	if (!overflowpid)
+		if (getoverflowpid() == -1)
+			return;
+
+	if (sigqueue(overflowpid, SIGUSR1, sv) == -1) {
+		if (errno == ESRCH) {
+			if (!getoverflowpid())
+				sigqueue(overflowpid, SIGUSR1, sv);
 		}
 	}
 }
