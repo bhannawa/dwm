@@ -83,7 +83,7 @@ static const char *layoutmenu_cmd = "layoutmenu.sh";
 static const char *browser[]  = { "firefox", NULL };
 static const char *browserlist[]  = { "browsers", NULL };
 static const char *files[]  = { "nemo", NULL };
-static const char *altfiles[]  = { "st", "-e", "lf", NULL };
+static const char *altfiles[]  = { "alacritty", "-e", "lf", NULL };
 static const char *dmenuunicode[]  = { "dmenuunicode", NULL };
 static const char *clipmenu[]  = { "clipmenu", NULL };
 static const char *bitwarden[]  = { "bwm", NULL };
@@ -95,6 +95,7 @@ static const char *overflow[]  = { "/home/brandon/.repos/dwmblocks/overflow/Swap
 static Key keys[] = {
 	/* modifier                     key        		        function        argument */
 	{ MODKEY,                       XK_d,      		        spawn,          {.v = dmenucmd } },
+	{ MODKEY,                       XK_slash,  		        spawn,          {.v = overflow } },
 	{ MODKEY,             		XK_Return, 		        spawn,          {.v = termcmd } },
 	{ MODKEY|ShiftMask,             XK_Return, 		        spawn,          {.v = alttermcmd } },
 	{ MODKEY,            	        XK_f, 		                spawn,          {.v = files } },
@@ -130,7 +131,6 @@ static Key keys[] = {
 	{ MODKEY,                       XK_c,      		        setlayout,      {.v = &layouts[3]} },
 	{ MODKEY,                       XK_u,                           setlayout,      {.v = &layouts[4]} },
 	{ MODKEY,                       XK_o,      		        setlayout,      {.v = &layouts[5]} },
-	{ MODKEY,                       XK_space,  		        spawn,          {.v = overflow } },
 	{ MODKEY|ShiftMask,             XK_space,  		        togglefloating, {0} },
 	{ MODKEY,                       XK_0,      		        view,           {.ui = ~0 } },
 	{ MODKEY|ShiftMask,             XK_0,      		        tag,            {.ui = ~0 } },
